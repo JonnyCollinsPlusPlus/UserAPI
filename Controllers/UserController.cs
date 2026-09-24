@@ -40,8 +40,8 @@ namespace UserAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(UserRequestDTO userDto)
         {
-            await _userService.AddUserAsync(userDto); // Calls service to add a new user
-            return CreatedAtAction(nameof(GetById), new { id = userDto.Id }, userDto);
+            var createdUser = await _userService.AddUserAsync(userDto); // Calls service to add a new user
+            return CreatedAtAction(nameof(GetById), new { id = createdUser.Id }, createdUser);
             // Returns 201 Created response with location header pointing to the new user
         }
 

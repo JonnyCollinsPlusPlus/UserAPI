@@ -5,7 +5,7 @@ namespace UserAPI
     {
         Task<IEnumerable<UserResponseDTO>> GetAllUsersAsync();
         Task<UserResponseDTO> GetUserByIdAsync(int id);
-        Task AddUserAsync(UserRequestDTO userDto);
+        Task<UserResponseDTO> AddUserAsync(UserRequestDTO userDto);
         Task UpdateUserAsync(int id, UserRequestDTO userDto);
         Task DeleteUserAsync(int id);
     }

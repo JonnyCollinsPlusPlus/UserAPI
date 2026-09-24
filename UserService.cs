@@ -21,7 +21,8 @@ namespace UserAPI
                 Email = u.Email,
                 Username = u.Username,
                 Role = u.Role,
-                CreatedAt = u.CreatedAt
+                CreatedAt = u.CreatedAt,
+                Id = u.Id
             });
         }
 
@@ -40,23 +41,34 @@ namespace UserAPI
                 Email = user.Email,
                 Username = user.Username,
                 Role = user.Role,
-                CreatedAt = user.CreatedAt
+                CreatedAt = user.CreatedAt,
+                Id = user.Id
             };
         }
 
         // Adds a new user using a request DTO
-        public async Task AddUserAsync(UserRequestDTO userDto)
+        public async Task<UserResponseDTO> AddUserAsync(UserRequestDTO userDto)
         {
             // Convert DTO to entity
             var user = new User
             {
                 Email = userDto.Email,
                 Username = userDto.Username,
-                Role = userDto.Role
+                Role = userDto.Role,
+                Password = userDto.Password
             };
 
-            // Add the new user to the database
+            // Add the new user to the database 
             await _userRepository.AddAsync(user);
+
+            // Return the created user as a response DTO
+            return new UserResponseDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                Role = user.Role
+            };
         }
 
         // Updates an existing user with new data
