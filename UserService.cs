@@ -5,9 +5,9 @@ namespace UserAPI
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository; // Repository instance for database operations
-        private readonly TokenService _tokenService;
+        private readonly ITokenService _tokenService;
 
-        public UserService(IUserRepository userRepository, TokenService tokenService)
+        public UserService(IUserRepository userRepository, ITokenService tokenService)
         {
             _userRepository = userRepository;
             _tokenService = tokenService;

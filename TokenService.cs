@@ -5,7 +5,7 @@ using System.Text;
 
 namespace UserAPI.Services
 {
-    public class TokenService
+    public class TokenService : ITokenService
     {
         private readonly IConfiguration _config;
 
