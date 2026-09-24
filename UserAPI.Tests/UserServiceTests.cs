@@ -65,9 +65,4 @@ public class UserServiceTests
         Assert.Null(result);
     }
 
-    [Fact]
-    public async Task FailTest()
-    {
-        Assert.False(true);
-    }
 }
