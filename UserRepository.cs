@@ -24,6 +24,13 @@ namespace UserAPI
             // Uses FindAsync to search for a user by their primary key (ID)
             return await _context.Users.FindAsync(id);
         }
+ 
+
+        // Retrieves a user by their email
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
 
         // Adds a new user to the database
         public async Task AddAsync(User user)

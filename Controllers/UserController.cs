@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UserAPI.DTOs;
+using UserAPI.Services;
 namespace UserAPI.Controllers
 {
     [ApiController]
@@ -10,10 +13,11 @@ namespace UserAPI.Controllers
 
         public UserController(IUserService userService)
         {
-            _userService = userService; // Injecting the service via constructor
+            _userService = userService;
         }
 
         // Handles HTTP GET request to fetch all users
+        [Authorize(Roles = "Admin")] // Only allows access to users with the "Admin" role
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -22,9 +26,16 @@ namespace UserAPI.Controllers
         }
 
         // Handles HTTP GET request to fetch a single user by ID
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
+            var loggedInUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var loggedInUserRole = User.FindFirst(ClaimTypes.Role)!.Value;
+
+            if (loggedInUserId != id && loggedInUserRole != "Admin")
+                return Forbid();
+
             try
             {
                 var user = await _userService.GetUserByIdAsync(id); // Calls service to fetch user by ID
@@ -46,9 +57,16 @@ namespace UserAPI.Controllers
         }
 
         // Handles HTTP PUT request to update an existing user
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UserRequestDTO userDto)
         {
+            var loggedInUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var loggedInUserRole = User.FindFirst(ClaimTypes.Role)!.Value;
+
+            if (loggedInUserId != id && loggedInUserRole != "Admin")
+                return Forbid();
+
             try
             {
                 await _userService.UpdateUserAsync(id, userDto); // Calls service to update user
@@ -61,6 +79,7 @@ namespace UserAPI.Controllers
         }
 
         // Handles HTTP DELETE request to delete a user by ID
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -73,6 +92,16 @@ namespace UserAPI.Controllers
             {
                 return NotFound(); // Returns 404 Not Found if user does not exist
             }
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDTO loginDto)
+        {
+            var token = await _userService.LoginAsync(loginDto);
+            if (token == null)
+                return Unauthorized();
+
+            return Ok(new { token });
         }
     }
 }

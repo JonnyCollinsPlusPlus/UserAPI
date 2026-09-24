@@ -1,13 +1,16 @@
 ﻿using UserAPI.DTOs;
+using UserAPI.Services;
 namespace UserAPI
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository; // Repository instance for database operations
+        private readonly TokenService _tokenService;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, TokenService tokenService)
         {
-            _userRepository = userRepository; // Injecting the repository via constructor
+            _userRepository = userRepository;
+            _tokenService = tokenService;
         }
 
         // Retrieves all users, converts them to DTOs, and returns the list
@@ -44,6 +47,16 @@ namespace UserAPI
                 CreatedAt = user.CreatedAt,
                 Id = user.Id
             };
+        }
+
+
+        public async Task<string?> LoginAsync(LoginDTO loginDto)
+        {
+            var user = await _userRepository.GetByEmailAsync(loginDto.Email);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+                return null;
+
+            return _tokenService.GenerateToken(user.Id, user.Role);
         }
 
         // Adds a new user using a request DTO
