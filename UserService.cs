@@ -55,7 +55,7 @@ namespace UserAPI
                 Email = userDto.Email,
                 Username = userDto.Username,
                 Role = userDto.Role,
-                Password = userDto.Password
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password)
             };
 
             // Add the new user to the database 
