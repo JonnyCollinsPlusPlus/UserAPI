@@ -1,2 +1,24 @@
 ﻿body {
+    font-family: sans-serif;
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+section {
+    margin-bottom: 30px;
+    padding: 15px;
+    border: 1px solid #ccc;
+}
+
+input, button {
+    display: block;
+    margin: 8px 0;
+    padding: 6px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button {
+    width: auto;
 }
