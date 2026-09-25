@@ -32,9 +32,24 @@ namespace UserAPI
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
+
+        // Retrieves a user by their username
+        public async Task<User?> GetByNameAsync(string username)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        }
+
         // Adds a new user to the database
         public async Task AddAsync(User user)
         {
+            if (await GetByEmailAsync(user.Email) != null)
+            {
+                throw new InvalidOperationException("A user with this email already exists.");
+            }
+            if (await GetByNameAsync(user.Username) != null)
+            {
+                throw new InvalidOperationException("A user with this username already exists.");
+            }
             // Adds the user entity to the database context
             await _context.Users.AddAsync(user);
 

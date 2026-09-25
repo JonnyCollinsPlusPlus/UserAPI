@@ -70,15 +70,22 @@ namespace UserAPI.Controllers
         /// </summary>
         /// <response code="201">User created successfully.</response>
         /// <response code="400">Request body failed validation.</response>
+        /// <response code="409">Conflict - email or username already exists.</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> Add(UserRequestDTO userDto)
         {
-            var createdUser = await _userService.AddUserAsync(userDto); // Calls service to add a new user
-            return CreatedAtAction(nameof(GetById), new { id = createdUser.Id }, createdUser);
-            // Returns 201 Created response with location header pointing to the new user
-            //TODO fix weakpoint here -> anyone can register themselves as an admin, Role should be forced to user with admin priviliges accessible only via a private endpoint
+            try
+            {
+                var createdUser = await _userService.AddUserAsync(userDto);
+                return CreatedAtAction(nameof(GetById), new { id = createdUser.Id }, createdUser);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
         }
 
         /// <summary>
