@@ -67,7 +67,7 @@ namespace UserAPI
             {
                 Email = userDto.Email,
                 Username = userDto.Username,
-                Role = userDto.Role,
+                Role = "User",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password)
             };
 
@@ -85,7 +85,7 @@ namespace UserAPI
         }
 
         // Updates an existing user with new data
-        public async Task UpdateUserAsync(int id, UserRequestDTO userDto)
+        public async Task UpdateUserAsync(int id, UpdateRoleDTO userDto)
         {
             var user = await _userRepository.GetByIdAsync(id); // Fetch the user by ID
 
@@ -94,8 +94,6 @@ namespace UserAPI
                 throw new KeyNotFoundException("User not found");
 
             // Update user fields with new values from DTO
-            user.Email = userDto.Email;
-            user.Username = userDto.Username;
             user.Role = userDto.Role;
 
             // Save the updated user in the database

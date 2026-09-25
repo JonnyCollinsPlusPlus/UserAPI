@@ -7,7 +7,7 @@ namespace UserAPI
         Task<UserResponseDTO> GetUserByIdAsync(int id);
         Task<UserResponseDTO> AddUserAsync(UserRequestDTO userDto);
         Task<string?> LoginAsync(LoginDTO loginDto);
-        Task UpdateUserAsync(int id, UserRequestDTO userDto);
+        Task UpdateUserAsync(int id, UpdateRoleDTO updateDTO);
         Task DeleteUserAsync(int id);
     }
 }

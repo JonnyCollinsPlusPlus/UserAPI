@@ -96,24 +96,17 @@ namespace UserAPI.Controllers
         /// <response code="401">Unauthorized.</response>
         /// <response code="403">Forbidden - updating another user's record without Admin role.</response>
         /// <response code="404">User not found.</response>
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(int id, UserRequestDTO userDto)
+        public async Task<IActionResult> Update(int id, UpdateRoleDTO updateDTO)
         {
-            var loggedInUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var loggedInUserRole = User.FindFirst(ClaimTypes.Role)!.Value;
-
-            if (loggedInUserId != id && loggedInUserRole != "Admin")
-                return Forbid();
-
             try
             {
-                await _userService.UpdateUserAsync(id, userDto); // Calls service to update user
+                await _userService.UpdateUserAsync(id, updateDTO); // Calls service to update user
                 return NoContent(); // Returns 204 No Content response on success
             }
             catch (KeyNotFoundException)

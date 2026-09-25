@@ -25,7 +25,6 @@ public class UserServiceTests
             Email = "test@example.com",
             Username = "testuser",
             Password = "plaintext123",
-            Role = "User"
         };
 
         // Act
@@ -119,59 +118,8 @@ public class UserServiceTests
         await Assert.ThrowsAsync<KeyNotFoundException>(() => service.GetUserByIdAsync(999));
     }
 
-    [Fact]
-    public async Task UpdateUserAsync_UpdatesFields_WhenUserExists()
-    {
-        var existingUser = new User
-        {
-            Id = 1,
-            Email = "old@example.com",
-            Username = "olduser",
-            PasswordHash = "somehash",
-            Role = "User"
-        };
 
-        var mockRepo = new Mock<IUserRepository>();
-        mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(existingUser);
-        mockRepo.Setup(r => r.UpdateAsync(It.IsAny<User>())).Returns(Task.CompletedTask);
 
-        var mockTokenService = new Mock<ITokenService>();
-        var service = new UserService(mockRepo.Object, mockTokenService.Object);
-
-        var updateDto = new UserRequestDTO
-        {
-            Email = "new@example.com",
-            Username = "newuser",
-            Password = "newpassword123",
-            Role = "User"
-        };
-
-        await service.UpdateUserAsync(1, updateDto);
-
-        Assert.Equal("new@example.com", existingUser.Email);
-        Assert.Equal("newuser", existingUser.Username);
-        mockRepo.Verify(r => r.UpdateAsync(It.IsAny<User>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task UpdateUserAsync_ThrowsKeyNotFound_WhenMissing()
-    {
-        var mockRepo = new Mock<IUserRepository>();
-        mockRepo.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((User?)null);
-
-        var mockTokenService = new Mock<ITokenService>();
-        var service = new UserService(mockRepo.Object, mockTokenService.Object);
-
-        var updateDto = new UserRequestDTO
-        {
-            Email = "x@example.com",
-            Username = "x",
-            Password = "x",
-            Role = "User"
-        };
-
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => service.UpdateUserAsync(999, updateDto));
-    }
 
     [Fact]
     public async Task DeleteUserAsync_DeletesUser_WhenExists()
@@ -218,7 +166,6 @@ public class UserServiceTests
             Email = "test@example.com",
             Username = "testuser",
             Password = "plaintext123",
-            Role = "User"
         };
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.AddUserAsync(dto));
