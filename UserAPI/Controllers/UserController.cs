@@ -89,7 +89,7 @@ namespace UserAPI.Controllers
         }
 
         /// <summary>
-        /// Updates an existing user. Users may only update their own record, Admins may update any.
+        /// Updates an existing user role. Only accessible by admins.
         /// </summary>
         /// <response code="204">User updated successfully.</response>
         /// <response code="400">Request body failed validation.</response>

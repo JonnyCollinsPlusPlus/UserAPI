@@ -1,31 +1,56 @@
-﻿let authToken = null;
+﻿let authToken = localStorage.getItem('authToken');
+let currentUserId = null;
 
-document.getElementById('register-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+const authView = document.getElementById('auth-view');
+const dashboardView = document.getElementById('dashboard-view');
+const adminSection = document.getElementById('admin-section');
 
-    const email = document.getElementById('register-email').value;
-    const username = document.getElementById('register-username').value;
-    const password = document.getElementById('register-password').value;
+function decodeToken(token) {
+    const payload = token.split('.')[1];
+    return JSON.parse(atob(payload));
+}
 
-    const response = await fetch('/api/user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, username, password })
+async function showDashboard() {
+    const claims = decodeToken(authToken);
+    currentUserId = claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+    const role = claims["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+
+    const response = await fetch(`/api/user/${currentUserId}`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
     });
 
-    const messageEl = document.getElementById('register-message');
-    if (response.ok) {
-        messageEl.textContent = 'Registered successfully! You can now log in.';
-    } else if (response.status === 409) {
-        messageEl.textContent = 'A user with that email already exists.';
-    } else {
-        messageEl.textContent = 'Registration failed.';
+    if (!response.ok) {
+        logout();
+        return;
     }
-});
+
+    const user = await response.json();
+    document.getElementById('my-username').textContent = user.username;
+    document.getElementById('my-email').textContent = user.email;
+    document.getElementById('my-role').textContent = user.role;
+
+    authView.classList.add('hidden');
+    dashboardView.classList.remove('hidden');
+
+    if (role === 'Admin') {
+        adminSection.classList.remove('hidden');
+        loadAllUsers();
+    } else {
+        adminSection.classList.add('hidden');
+    }
+}
+
+function logout() {
+    authToken = null;
+    currentUserId = null;
+    localStorage.removeItem('authToken');
+    dashboardView.classList.add('hidden');
+    authView.classList.remove('hidden');
+}
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
@@ -39,29 +64,49 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     if (response.ok) {
         const data = await response.json();
         authToken = data.token;
-        messageEl.textContent = 'Logged in successfully.';
+        localStorage.setItem('authToken', authToken);
+        messageEl.textContent = '';
+        showDashboard();
+        messageEl.textContent = "Logged in!";
     } else {
         messageEl.textContent = 'Invalid email or password.';
     }
 });
 
-document.getElementById('load-users-btn').addEventListener('click', async () => {
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('register-email').value;
+    const username = document.getElementById('register-username').value;
+    const password = document.getElementById('register-password').value;
+
+    const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, username, password })
+    });
+
+    const messageEl = document.getElementById('register-message');
+    if (response.ok) {
+        messageEl.textContent = 'Registered! You can now log in.';
+    } else if (response.status === 409) {
+        messageEl.textContent = 'A user with that email already exists.';
+    } else {
+        messageEl.textContent = 'Registration failed.';
+    }
+});
+
+document.getElementById('logout-btn').addEventListener('click', logout);
+
+document.getElementById('load-users-btn').addEventListener('click', loadAllUsers);
+
+async function loadAllUsers() {
     const listEl = document.getElementById('users-list');
     listEl.innerHTML = '';
-
-    if (!authToken) {
-        listEl.innerHTML = '<li>Please log in first.</li>';
-        return;
-    }
 
     const response = await fetch('/api/user', {
         headers: { 'Authorization': `Bearer ${authToken}` }
     });
 
-    if (response.status === 403) {
-        listEl.innerHTML = '<li>You must be an Admin to view this.</li>';
-        return;
-    }
     if (!response.ok) {
         listEl.innerHTML = '<li>Failed to load users.</li>';
         return;
@@ -73,4 +118,8 @@ document.getElementById('load-users-btn').addEventListener('click', async () => 
         li.textContent = `${u.username} (${u.email}) - ${u.role}`;
         listEl.appendChild(li);
     });
-});
+}
+//skips straight to dashboard if already logged in
+if (authToken) {
+    showDashboard();
+}

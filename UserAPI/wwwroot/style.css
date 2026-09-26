@@ -22,3 +22,7 @@ input, button {
 button {
     width: auto;
 }
+
+.hidden {
+    display: none;
+}
