@@ -115,9 +115,34 @@ async function loadAllUsers() {
     const users = await response.json();
     users.forEach(u => {
         const li = document.createElement('li');
-        li.textContent = `${u.username} (${u.email}) - ${u.role}`;
+        li.textContent = `${u.username} (${u.email}) - ${u.role} `;
+
+        if (u.role !== 'Admin') {
+            const promoteBtn = document.createElement('button');
+            promoteBtn.textContent = 'Make Admin';
+            promoteBtn.addEventListener('click', () => promoteToAdmin(u.id, li));
+            li.appendChild(promoteBtn);
+        }
+
         listEl.appendChild(li);
     });
+}
+
+async function promoteToAdmin(userId, listItemEl) {
+    const response = await fetch(`/api/user/${userId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ "role": 'Admin' })
+    });
+
+    if (response.ok) {
+        loadAllUsers(); // refresh the whole list so the button disappears and role text updates
+    } else {
+        alert('Failed to promote user.');
+    }
 }
 //skips straight to dashboard if already logged in
 if (authToken) {
