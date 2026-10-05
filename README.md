@@ -7,8 +7,8 @@ A C# .Net API to handle user logins
 * Password hashing with BCrypt
 * Automated testing with xUnit and GitHubActions
 
-* Deployed via Render and Neon
+Deployed via Render and Neon
 
-available [here](https://userapi-i3ea.onrender.com)
+Available [here](https://userapi-i3ea.onrender.com)
 
 Note that render may need up to 1 minute spinup time once page loads
