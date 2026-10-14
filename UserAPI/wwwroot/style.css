@@ -1,28 +1,410 @@
-﻿body {
-    font-family: sans-serif;
-    max-width: 500px;
-    margin: 40px auto;
-    padding: 0 20px;
+﻿/* ---------- Tokens ---------- */
+/* Palette: Tea Green #D1F0B1, Celadon #B6CB9E, Muted Teal #92B4A7,
+   Rosy Granite #8C8A93, Dusty Lavender #81667A.
+   Text uses a deep plum (--ink) made from the lavender, because none of the
+   five palette colours is dark enough to read on the others. */
+:root {
+    --bg: #d1f0b1;          /* Tea Green: page */
+    --surface: #f3fae9;     /* light tint of Tea Green: the control card */
+    --band: #92b4a7;        /* Muted Teal: header band */
+    --line: #92b4a7;        /* Muted Teal: dividers and card border */
+    --edge: #8c8a93;        /* Rosy Granite: input borders */
+    --pill: #b6cb9e;        /* Celadon: role badge */
+    --accent: #81667a;      /* Dusty Lavender: buttons, active tab, focus */
+    --accent-ink: #ffffff;
+    --ink: #2b1f2d;         /* deep plum: main text */
+    --muted: #5b4a5c;       /* softer plum: secondary text */
+    --danger: #b3261e;
+    --ok: #1c6b3a;
+    color-scheme: light dark;
 }
 
-section {
-    margin-bottom: 30px;
-    padding: 15px;
-    border: 1px solid #ccc;
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #17211f;
+        --surface: #1f2d2a;
+        --band: #2a433d;
+        --line: #35504a;
+        --edge: #8c8a93;
+        --pill: #35504a;
+        --accent: #b896ae;      /* Dusty Lavender, lightened to stand out on dark */
+        --accent-ink: #2b1f2d;
+        --ink: #d1f0b1;         /* Tea Green */
+        --muted: #b6cb9e;       /* Celadon */
+        --danger: #ff8a80;
+        --ok: #7bd89a;
+    }
 }
 
-input, button {
-    display: block;
-    margin: 8px 0;
-    padding: 6px;
-    width: 100%;
+/* ---------- Base ---------- */
+* {
     box-sizing: border-box;
 }
 
-button {
-    width: auto;
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 1rem/1.55 "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
+h1, h2, p {
+    margin: 0;
+}
+
+/* script.js toggles this class to show and hide views */
 .hidden {
+    display: none !important;
+}
+
+/* ---------- Page frame ---------- */
+.site-header,
+.layout {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+.site-header {
+    padding-top: 32px;
+    padding-bottom: 24px;
+    background: var(--band);
+    max-width: none;
+}
+
+.site-header > * {
+    max-width: 992px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.site-header h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.site-header p {
+    margin-top: 4px;
+    color: var(--ink);
+    max-width: 56ch;
+}
+
+/* ---------- Two-sided layout ---------- */
+.layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: 64px;
+    row-gap: 40px;
+    padding-top: 56px;
+    padding-bottom: 72px;
+}
+
+/* The logged-in wrapper dissolves so its children join the grid */
+#dashboard-view {
+    display: contents;
+}
+
+/* Left side */
+.display {
+    grid-column: 1;
+    min-width: 0;
+}
+
+#welcome-panel,
+#account-panel {
+    grid-row: 1;
+}
+
+#admin-section {
+    grid-row: 2;
+}
+
+/* Right side */
+.control {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: start;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 28px;
+}
+
+/* Hide the logged-out message once the dashboard is showing */
+body:has(#dashboard-view:not(.hidden)) #welcome-panel {
     display: none;
+}
+
+/* ---------- Left side content ---------- */
+.headline {
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    font-weight: 700;
+    margin-bottom: 24px;
+    overflow-wrap: anywhere;
+}
+
+.lead {
+    font-size: 1.25rem;
+    line-height: 1.45;
+    max-width: 32ch;
+}
+
+.note {
+    margin-top: 24px;
+    color: var(--muted);
+    max-width: 46ch;
+}
+
+.signed-in-as {
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.row {
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+    max-width: 32rem;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+}
+
+.row:last-of-type {
+    border-bottom: 1px solid var(--line);
+}
+
+.row .label {
+    flex: 0 0 5.5rem;
+    color: var(--muted);
+}
+
+.row span:last-child {
+    overflow-wrap: anywhere;
+}
+
+#my-role {
+    padding: 2px 12px;
+    border-radius: 999px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--pill);
+}
+
+/* Admin user list */
+.section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 8px;
+}
+
+.section-head h2 {
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+}
+
+#users-list {
+    list-style: none;
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+#users-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+    overflow-wrap: anywhere;
+}
+
+#users-list li:last-child {
+    border-bottom: 1px solid var(--line);
+}
+
+#users-list:empty::before {
+    content: "No users loaded yet. Press Refresh list.";
+    display: block;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+}
+
+/* ---------- Right side content ---------- */
+.control h2 {
+    font-size: 1.25rem;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+}
+
+#session-card p {
+    color: var(--muted);
+    margin-bottom: 20px;
+}
+
+/* CSS-only tabs: the radio inputs drive which panel shows */
+.tab-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tabs {
+    display: flex;
+    gap: 20px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 24px;
+}
+
+.tab {
+    padding: 6px 2px;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+#tab-login:checked ~ .tabs [for="tab-login"],
+#tab-register:checked ~ .tabs [for="tab-register"] {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+}
+
+#tab-login:focus-visible ~ .tabs [for="tab-login"],
+#tab-register:focus-visible ~ .tabs [for="tab-register"] {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.tab-panel {
+    display: none;
+}
+
+#tab-login:checked ~ #login-panel,
+#tab-register:checked ~ #register-panel {
+    display: block;
+}
+
+/* Forms */
+form {
+    display: grid;
+    gap: 16px;
+}
+
+.field {
+    display: grid;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+input[type="email"],
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    font: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: transparent;
+    padding: 10px 12px;
+    border: 1px solid var(--edge);
+    border-radius: 8px;
+}
+
+input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+}
+
+#login-message,
+#register-message {
+    min-height: 1.5em;
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+#login-message.error,
+#register-message.error {
+    color: var(--danger);
+}
+
+#login-message.success,
+#register-message.success {
+    color: var(--ok);
+}
+
+/* ---------- Buttons ---------- */
+button {
+    font: inherit;
+    font-weight: 500;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-ink);
+    cursor: pointer;
+}
+
+button:hover {
+    filter: brightness(1.08);
+}
+
+button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Quieter buttons for secondary actions */
+#logout-btn,
+#load-users-btn,
+#users-list button {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--accent);
+}
+
+#logout-btn:hover,
+#load-users-btn:hover,
+#users-list button:hover {
+    background: var(--pill);
+    filter: none;
+}
+
+#users-list button {
+    padding: 4px 12px;
+    font-size: 0.9rem;
+}
+
+/* ---------- Small screens: stack, with the controls first ---------- */
+@media (max-width: 760px) {
+    .layout {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto;
+        row-gap: 32px;
+        padding-top: 32px;
+    }
+
+    .display,
+    .control,
+    #welcome-panel,
+    #account-panel,
+    #admin-section {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    .control {
+        order: -1;
+        padding: 20px;
+    }
 }

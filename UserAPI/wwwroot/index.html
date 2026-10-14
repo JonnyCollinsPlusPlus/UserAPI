@@ -1,53 +1,97 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>UserAPI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>UserAPI</h1>
+    <header class="site-header">
+        <h1>UserAPI</h1>
+        <p>A C# .NET login API with JWT authentication and role-based access. This page is a small client for it.</p>
+    </header>
 
-    <!-- Logged-out view -->
-    <div id="auth-view">
-        <section>
-            <h2>Login</h2>
-            <form id="login-form">
-                <input type="email" id="login-email" placeholder="Email" required />
-                <input type="password" id="login-password" placeholder="Password" required />
-                <button type="submit">Login</button>
-            </form>
-            <p id="login-message"></p>
+    <main class="layout">
+        <section id="welcome-panel" class="display">
+            <h2 class="headline">You're signed out.</h2>
+            <p class="lead">Log in or register on the right to see your account. Admins can also view every user.</p>
+            <p class="note">The server runs on a free Render plan, so the first request can take up to a minute to wake up.</p>
         </section>
 
-        <section>
-            <h2>Register</h2>
-            <form id="register-form">
-                <input type="email" id="register-email" placeholder="Email" required />
-                <input type="text" id="register-username" placeholder="Username" required />
-                <input type="password" id="register-password" placeholder="Password" required />
-                <button type="submit">Register</button>
-            </form>
-            <p id="register-message"></p>
-        </section>
-    </div>
+        <div id="auth-view" class="control">
+            <input type="radio" name="auth-tab" id="tab-login" class="tab-radio" checked />
+            <input type="radio" name="auth-tab" id="tab-register" class="tab-radio" />
 
-    <!-- Logged-in dashboard, hidden until authenticated -->
-    <div id="dashboard-view" class="hidden">
-        <section>
-            <h2>My Account</h2>
-            <p><strong>Username:</strong> <span id="my-username"></span></p>
-            <p><strong>Email:</strong> <span id="my-email"></span></p>
-            <p><strong>Role:</strong> <span id="my-role"></span></p>
-            <button id="logout-btn">Logout</button>
-        </section>
+            <div class="tabs">
+                <label for="tab-login" class="tab">Log in</label>
+                <label for="tab-register" class="tab">Register</label>
+            </div>
 
-        <section id="admin-section" class="hidden">
-            <h2>Admin: All Users</h2>
-            <button id="load-users-btn">Refresh List</button>
-            <ul id="users-list"></ul>
-        </section>
-    </div>
+            <section id="login-panel" class="tab-panel" aria-label="Log in">
+                <form id="login-form">
+                    <label class="field">Email
+                        <input type="email" id="login-email" autocomplete="email" required />
+                    </label>
+                    <label class="field">Password
+                        <input type="password" id="login-password" autocomplete="current-password" required />
+                    </label>
+                    <button type="submit">Log in</button>
+                </form>
+                <p id="login-message" role="status"></p>
+            </section>
+
+            <section id="register-panel" class="tab-panel" aria-label="Register">
+                <form id="register-form">
+                    <label class="field">Email
+                        <input type="email" id="register-email" autocomplete="email" required />
+                    </label>
+                    <label class="field">Username
+                        <input type="text" id="register-username" autocomplete="username" required />
+                    </label>
+                    <label class="field">Password
+                        <input type="password" id="register-password" autocomplete="new-password" required />
+                    </label>
+                    <button type="submit">Create account</button>
+                </form>
+                <p id="register-message" role="status"></p>
+            </section>
+        </div>
+
+        <div id="dashboard-view" class="hidden">
+
+            <section id="account-panel" class="display">
+                <p class="signed-in-as">Signed in as</p>
+                <h2 class="headline"><span id="my-username"></span></h2>
+                <div class="row">
+                    <span class="label">Email</span>
+                    <span id="my-email"></span>
+                </div>
+                <div class="row">
+                    <span class="label">Role</span>
+                    <span id="my-role"></span>
+                </div>
+            </section>
+
+            <section id="admin-section" class="display hidden">
+                <div class="section-head">
+                    <h2>All users</h2>
+                    <button id="load-users-btn" type="button">Refresh list</button>
+                </div>
+                <ul id="users-list"></ul>
+            </section>
+
+            <section id="session-card" class="control">
+                <h2>Session</h2>
+                <p>You're logged in. Log out to end this session on this device.</p>
+                <button id="logout-btn" type="button">Log out</button>
+            </section>
+        </div>
+
+    </main>
 
     <script src="script.js"></script>
 </body>
