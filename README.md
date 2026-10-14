@@ -1,7 +1,8 @@
 # UserAPI
 A C# .NET REST API for user registration and login, using JWT authentication, and a PostgreSQL backend.
 
-**Live demo:** https://userapi-i3ea.onrender.com/
+![Preview of the frontend client created to show the service](FrontendPreview.png)
+**Frontend Client:** https://userapi-i3ea.onrender.com/
 *(Hosted on Render's free tier, so the first request can take up to a minute to wake up.)*
 
 ## Features
