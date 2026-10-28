@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: userapi
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: userapi
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U userapi"]
+      interval: 5s
+      retries: 5
+
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=db;Database=userapi;Username=userapi;Password=${DB_PASSWORD}"
+      Jwt__Key: ${JWT_KEY}
+
+volumes:
+  pgdata:
